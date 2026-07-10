@@ -19,6 +19,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { MD3 } from '../../constants/colors';
 import { M3Card } from '../../components/common/M3Card';
+import { CarFinderIcon } from '../../components/common/CarFinderIcon';
 import { mockNotices, mockBenefits, mockCoexEvents, mockParkingInfo } from '../../utils/mockData';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ParkingStatus } from '../../types';
@@ -101,6 +102,20 @@ const PARKING_ICON: Record<ParkingStatus, React.ComponentProps<typeof Ionicons>[
   busy: 'warning',
   full: 'close-circle',
   unknown: 'help-circle',
+};
+
+const PARKING_RATE: Record<ParkingStatus, number> = {
+  free: 42,
+  busy: 78,
+  full: 97,
+  unknown: 0,
+};
+
+const PARKING_MSG: Record<ParkingStatus, string> = {
+  free: '현재 주차 공간에 여유가 있습니다.\n지하 주차장을 편리하게 이용하세요!',
+  busy: '주차장이 다소 혼잡합니다. 대중교통 이용을 권장합니다.',
+  full: '주차장이 만차입니다. 인근 주차장을 이용해 주세요.',
+  unknown: '실시간 주차 정보를 확인 중입니다.',
 };
 
 const QUICK_MENUS = [
@@ -223,7 +238,37 @@ export default function HomeScreen() {
                   </View>
                 </View>
 
+                {/* 주차율 바 */}
+                <View style={styles.rateBarWrap}>
+                  <View style={styles.rateBarBg}>
+                    <LinearGradient
+                      colors={['#22C55E', '#16A34A']}
+                      start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                      style={[styles.rateBarFill, { width: `${PARKING_RATE[parking.status]}%` }]}
+                    />
+                  </View>
+                  <Text style={styles.rateLabel}>{PARKING_RATE[parking.status]}%</Text>
+                </View>
+
+                <Text style={styles.parkingMsg}>{PARKING_MSG[parking.status]}</Text>
               </M3Card>
+            </View>
+
+            {/* 내차찾기 */}
+            <View style={[styles.section, { marginTop: -20 }]}>
+              <TouchableOpacity
+                style={styles.carFinderBtn}
+                onPress={() => router.push('/car-finder' as any)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.carFinderBtnLeft}>
+                  <View style={styles.carFinderBtnIconBox}>
+                    <CarFinderIcon size={22} color={MD3.primary} />
+                  </View>
+                  <Text style={styles.carFinderBtnText}>내차찾기</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+              </TouchableOpacity>
             </View>
 
             {/* Today's Notices */}
@@ -350,6 +395,24 @@ export default function HomeScreen() {
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.6)" />
               </LinearGradient>
+            </TouchableOpacity>
+
+            {/* 안전신문고 버튼 */}
+            <TouchableOpacity
+              style={styles.safetyBtn}
+              onPress={() => router.push('/safety' as any)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.safetyBtnLeft}>
+                <View style={styles.safetyBtnIconBox}>
+                  <Ionicons name="shield-checkmark-outline" size={24} color={MD3.error} />
+                </View>
+                <View>
+                  <Text style={styles.safetyBtnTitle}>안전신문고</Text>
+                  <Text style={styles.safetyBtnSub}>안전 위험요소를 신고해주세요</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
             </TouchableOpacity>
 
           </ScrollView>
@@ -528,6 +591,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
   },
   parkingBadgeText: { fontSize: 14, fontWeight: '700' },
+  rateBarWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, marginBottom: 8, gap: 10,
+  },
+  rateBarBg: {
+    flex: 1, height: 8, borderRadius: 4,
+    backgroundColor: MD3.surfaceVariant, overflow: 'hidden',
+  },
+  rateBarFill: { height: '100%', borderRadius: 4 },
+  rateLabel: { fontSize: 13, fontWeight: '700', color: MD3.onSurface, width: 36 },
+  parkingMsg: {
+    fontSize: 13, color: MD3.onSurfaceVariant,
+    paddingHorizontal: 16, paddingBottom: 16, lineHeight: 19,
+  },
+
+  carFinderBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginHorizontal: 16, paddingHorizontal: 16, paddingVertical: 14,
+    borderRadius: 16, backgroundColor: MD3.primaryContainer,
+  },
+  carFinderBtnLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  carFinderBtnIconBox: {
+    width: 36, height: 36, borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  carFinderBtnText: { fontSize: 15, fontWeight: '700', color: MD3.onSurface },
 
   qrBtn: {
     marginHorizontal: 16, marginTop: 12, marginBottom: 8,
@@ -586,5 +676,21 @@ const styles = StyleSheet.create({
   },
   qrRefreshText: { fontSize: 13, fontWeight: '600', color: MD3.primary },
   qrNotice: { fontSize: 11, color: '#AAA', textAlign: 'center' },
+
+  safetyBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginHorizontal: 16, marginTop: 4, marginBottom: 8,
+    paddingHorizontal: 16, paddingVertical: 14,
+    borderRadius: 16, backgroundColor: '#FFF5F5',
+    borderWidth: 1, borderColor: '#FFE0E0',
+  },
+  safetyBtnLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  safetyBtnIconBox: {
+    width: 44, height: 44, borderRadius: 14,
+    backgroundColor: '#FFE9E9',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  safetyBtnTitle: { fontSize: 15, fontWeight: '700', color: MD3.onSurface, marginBottom: 3 },
+  safetyBtnSub: { fontSize: 12, color: MD3.onSurfaceVariant },
 
 });

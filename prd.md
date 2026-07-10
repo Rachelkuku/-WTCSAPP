@@ -1292,3 +1292,54 @@ API 제공이 어려운 경우 관리자 수동 입력 기능을 제공한다.
 # 17. 한 줄 정의
 
 WTC Membership App은 WTC 입주사를 위한 업무 신청, 공지 확인, 멤버십 혜택, 코엑스 전시 일정, 커뮤니티 기능을 통합 제공하는 입주사 전용 모바일 플랫폼이다.
+
+---
+
+# 18. 현재 라우팅 구조 및 기술 스택
+
+## 18.1 기술 스택
+- **프레임워크**: React Native (Expo)
+- **라우팅**: Expo Router (app/ 디렉토리 기반 파일 라우팅)
+- **주요 UI**: React Native 기본 컴포넌트
+
+## 18.2 현재 앱 라우팅 구조 (app/ 폴더)
+
+현재 프로젝트는 Expo Router를 사용하여 다음과 같은 라우팅 구조로 구현되어 있다.
+- **(auth)**: 로그인 전 인증 단계 그룹
+- **(tabs)**: 입주사 전용 기능 탭 그룹 (홈, 신청, 멤버십, 커뮤니티, 마이페이지)
+- **(visitor)**: 로그인 없이 볼 수 있는 방문객 정보 그룹
+
+```text
+app/
+├── _layout.tsx           # 최상위 레이아웃
+├── index.tsx             # 진입점 (분기 처리 등)
+├── gateway.tsx           # 게이트웨이 화면
+├── webview.tsx           # 공통 웹뷰 화면
+│
+├── (auth)/               # 인증 관련 그룹
+│   ├── _layout.tsx
+│   ├── login.tsx         # 로그인 화면
+│   └── register.tsx      # 회원가입 화면
+│
+├── (tabs)/               # 메인 탭 화면 (로그인 후 하단 탭)
+│   ├── _layout.tsx       # 탭바 레이아웃
+│   ├── index.tsx         # 홈 탭
+│   ├── apply/index.tsx   # 신청 탭
+│   ├── membership/index.tsx # 멤버십 탭
+│   ├── community/index.tsx  # 커뮤니티 탭
+│   └── my/index.tsx      # 마이페이지 탭
+│
+├── (visitor)/            # 방문객/일반 사용자용 화면
+│   ├── _layout.tsx
+│   ├── index.tsx
+│   └── attraction.tsx    # 주변 명소/안내
+│
+├── notice/
+│   └── [id].tsx          # 공지사항 상세 화면 (동적 라우팅)
+│
+├── coex/
+│   └── [id].tsx          # 코엑스 전시 일정 상세 화면
+│
+└── poll/
+    └── [id].tsx          # 투표/설문 상세 화면
+```

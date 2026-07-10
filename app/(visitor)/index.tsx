@@ -19,12 +19,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { MD3 } from '../../constants/colors';
 import { I18N, EXTERNAL_URLS, Lang } from '../../constants/i18n';
 import { M3Card } from '../../components/common/M3Card';
+import { CarFinderIcon } from '../../components/common/CarFinderIcon';
 import { useAuthStore } from '../../store/useAuthStore';
 
 const bgWtc = require('../../assets/bg_wtc.jpg');
 const coexMap = require('../../assets/coex_map.png');
 const mascotImg = require('../../assets/cacl.png');
 const { width } = Dimensions.get('window');
+
+const ATTRACTION_IMAGES: Record<string, number> = {
+  '0': require('../../assets/attractions/gangnam_style_statue.jpg'),
+  '1': require('../../assets/attractions/artium_media.jpg'),
+  '2': require('../../assets/attractions/s_live_gallery.jpg'),
+  '3': require('../../assets/attractions/ktown4u.jpg'),
+  '4': require('../../assets/attractions/starfield_library.jpg'),
+  '5': require('../../assets/attractions/bongeunsa_temple.jpg'),
+  '6': require('../../assets/attractions/coex_aquarium.jpg'),
+  '7': require('../../assets/attractions/megabox_film_society.jpg'),
+  '8': require('../../assets/attractions/baskin_robbins_store.jpg'),
+};
 
 // 주차율 (고정 목업 데이터)
 const PARKING_RATE = 78;
@@ -142,6 +155,22 @@ export default function VisitorHomeScreen() {
                   {PARKING_STATUS === 'free' ? t.parkingFreeMsg[lang] : t.parkingBusyMsg[lang]}
                 </Text>
               </M3Card>
+
+              <TouchableOpacity
+                style={styles.carFinderBtn}
+                onPress={() => router.push('/car-finder' as any)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.carFinderBtnLeft}>
+                  <View style={styles.carFinderBtnIconBox}>
+                    <CarFinderIcon size={22} color={MD3.primary} />
+                  </View>
+                  <Text style={styles.carFinderBtnText}>
+                    {lang === 'KR' ? '내차찾기' : 'Find My Car'}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+              </TouchableOpacity>
             </View>
 
             {/* ② 코엑스 전시회 */}
@@ -334,12 +363,13 @@ export default function VisitorHomeScreen() {
                       });
                     }}
                   >
-                    <LinearGradient
-                      colors={getAttractionGradient(idx)}
-                      style={styles.attractionImgBox}
-                    >
-                      <Ionicons name={item.icon} size={34} color="#FFFFFF" />
-                    </LinearGradient>
+                    <View style={styles.attractionImgBox}>
+                      <Image
+                        source={ATTRACTION_IMAGES[item.id]}
+                        style={styles.attractionImg}
+                        resizeMode="cover"
+                      />
+                    </View>
                     <View style={styles.attractionCategoryBadge}>
                       <Text style={styles.attractionCategoryText}>{item.category[lang]}</Text>
                     </View>
@@ -349,6 +379,30 @@ export default function VisitorHomeScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+            </View>
+
+            {/* 안전신문고 */}
+            <View style={styles.section}>
+              <TouchableOpacity
+                style={styles.safetyBtn}
+                onPress={() => router.push('/safety' as any)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.safetyBtnLeft}>
+                  <View style={styles.safetyBtnIconBox}>
+                    <Ionicons name="shield-checkmark-outline" size={24} color="#DC2626" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.safetyBtnTitle}>
+                      {lang === 'KR' ? '안전신문고' : 'Safety Report'}
+                    </Text>
+                    <Text style={styles.safetyBtnSub}>
+                      {lang === 'KR' ? '안전 위험요소를 신고해주세요' : 'Report a safety hazard'}
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+              </TouchableOpacity>
             </View>
 
             {/* 게이트웨이로 돌아가기 */}
@@ -400,21 +454,6 @@ function SectionHeaderWithBtn({
       </TouchableOpacity>
     </View>
   );
-}
-
-function getAttractionGradient(idx: number): [string, string] {
-  const palettes: [string, string][] = [
-    ['#6366F1', '#8B5CF6'],
-    ['#EC4899', '#F43F5E'],
-    ['#0EA5E9', '#38BDF8'],
-    ['#10B981', '#34D399'],
-    ['#F59E0B', '#FBBF24'],
-    ['#EF4444', '#F87171'],
-    ['#06B6D4', '#22D3EE'],
-    ['#8B5CF6', '#A78BFA'],
-    ['#F97316', '#FB923C'],
-  ];
-  return palettes[idx % palettes.length];
 }
 
 // ─── 스타일 ──────────────────────────────────────────────────────
@@ -541,6 +580,19 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     lineHeight: 19,
   },
+
+  carFinderBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginTop: 12, paddingHorizontal: 16, paddingVertical: 14,
+    borderRadius: 16, backgroundColor: MD3.primaryContainer,
+  },
+  carFinderBtnLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  carFinderBtnIconBox: {
+    width: 36, height: 36, borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  carFinderBtnText: { fontSize: 15, fontWeight: '700', color: MD3.onSurface },
 
   // ③ 실내 길찾기
   prototypeBadge: {
@@ -721,8 +773,10 @@ const styles = StyleSheet.create({
   attractionImgBox: {
     width: 130, height: 100, borderRadius: 16,
     alignItems: 'center', justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 8, overflow: 'hidden',
+    backgroundColor: MD3.surfaceVariant,
   },
+  attractionImg: { width: '100%', height: '100%' },
   attractionCategoryBadge: {
     backgroundColor: MD3.primaryContainer,
     borderRadius: 6,
@@ -745,4 +799,20 @@ const styles = StyleSheet.create({
     backgroundColor: MD3.surfaceVariant,
   },
   backToGatewayText: { fontSize: 13, color: MD3.onSurfaceVariant, fontWeight: '600' },
+
+  // 안전신문고
+  safetyBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 14,
+    borderRadius: 16, backgroundColor: '#FFF5F5',
+    borderWidth: 1, borderColor: '#FFE0E0',
+  },
+  safetyBtnLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 14 },
+  safetyBtnIconBox: {
+    width: 44, height: 44, borderRadius: 14,
+    backgroundColor: '#FFE9E9',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  safetyBtnTitle: { fontSize: 15, fontWeight: '700', color: MD3.onSurface, marginBottom: 3 },
+  safetyBtnSub: { fontSize: 12, color: MD3.onSurfaceVariant },
 });

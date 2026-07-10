@@ -17,6 +17,8 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(visitor)" />
           <Stack.Screen name="webview" />
+          <Stack.Screen name="safety/index" />
+          <Stack.Screen name="car-finder/index" />
           <Stack.Screen name="notice/[id]" options={{ headerShown: true, title: '공지사항', headerBackTitle: '' }} />
           <Stack.Screen name="coex/[id]" options={{ headerShown: true, title: '전시 상세', headerBackTitle: '' }} />
           <Stack.Screen name="poll/[id]" options={{ headerShown: false }} />

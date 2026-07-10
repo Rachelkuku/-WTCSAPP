@@ -255,5 +255,5 @@ export const EXTERNAL_URLS = {
   dining: 'https://www.starfield.co.kr/coexmall/cafeDining/restaurant.do',
   limo: 'https://www.calt.co.kr/',
   luggage: 'https://www.goodlugg.com/?NaPm=ct%3Dmq0ao9yf%7Cci%3DERc5da180c-6084-11f1-9aa2-62afc38c16ab%7Ctr%3Dsa%7Chk%3D7c9c949d1fa6d87c21419826ba9d17881deada5e%7Cnacn%3DfcIgCAifN2TYD',
-  starfieldLibrary: 'https://m.starfield.co.kr/suwon/library/lectureList',
+  starfieldLibrary: 'https://m.starfield.co.kr/coexmall/library/lectureList',
 };
