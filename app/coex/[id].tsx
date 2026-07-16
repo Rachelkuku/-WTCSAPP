@@ -7,13 +7,13 @@ import {
   StyleSheet,
   SafeAreaView,
   Linking,
-  Alert,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { MD3 } from '../../constants/colors';
 import { M3Button } from '../../components/common/M3Button';
 import { mockCoexEvents } from '../../utils/mockData';
+import { showAlert } from '../../utils/showAlert';
 
 export default function CoexEventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -37,7 +37,7 @@ export default function CoexEventDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={MD3.onSurface} />
         </TouchableOpacity>
         <Text style={styles.topTitle}>전시 상세</Text>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => Alert.alert('관심 저장', '관심 전시에 추가되었습니다.')}>
+        <TouchableOpacity style={styles.iconBtn} onPress={() => showAlert('관심 저장', '관심 전시에 추가되었습니다.')}>
           <Ionicons name="heart-outline" size={24} color={MD3.onSurface} />
         </TouchableOpacity>
       </View>
@@ -99,7 +99,7 @@ export default function CoexEventDetailScreen() {
               label="관심 저장"
               variant="outlined"
               icon={<Ionicons name="bookmark-outline" size={16} color={MD3.primary} />}
-              onPress={() => Alert.alert('관심 저장', '관심 전시에 추가되었습니다.')}
+              onPress={() => showAlert('관심 저장', '관심 전시에 추가되었습니다.')}
               style={{ flex: 1 }}
             />
           </View>

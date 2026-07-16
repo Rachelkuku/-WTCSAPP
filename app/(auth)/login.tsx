@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ImageBackground,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -17,6 +16,7 @@ import { MD3 } from '../../constants/colors';
 import { M3TextField } from '../../components/common/M3TextField';
 import { M3Button } from '../../components/common/M3Button';
 import { useAuthStore } from '../../store/useAuthStore';
+import { showAlert } from '../../utils/showAlert';
 
 const heroBg = require('../../assets/mascot2.png');
 
@@ -28,14 +28,14 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('입력 오류', '이메일과 비밀번호를 입력해주세요.');
+      showAlert('입력 오류', '이메일과 비밀번호를 입력해주세요.');
       return;
     }
     try {
       await login(email, password);
       router.replace('/(tabs)');
     } catch {
-      Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요.');
+      showAlert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요.');
     }
   };
 
@@ -53,7 +53,7 @@ export default function LoginScreen() {
           {/* Hero — 하늘+빌딩+두 캐릭터 배경 꽉 채우기 */}
           <ImageBackground source={heroBg} style={styles.hero} resizeMode="cover">
             <View style={styles.heroOverlay}>
-              <Text style={styles.heroTitle}>WTC ASEM·TRADE</Text>
+              <Text style={styles.heroTitle}>WTCS ASEM·TRADE</Text>
               <Text style={styles.heroSubtitle}>입주사 전용 멤버십 플랫폼</Text>
             </View>
           </ImageBackground>

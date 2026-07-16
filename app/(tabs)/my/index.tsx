@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
   Switch,
   Image,
 } from 'react-native';
@@ -16,6 +15,7 @@ import { MD3 } from '../../../constants/colors';
 import { M3Card } from '../../../components/common/M3Card';
 import { M3Button } from '../../../components/common/M3Button';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { showAlert } from '../../../utils/showAlert';
 
 const mascotImg = require('../../../assets/mascot_clean.png');
 
@@ -23,7 +23,7 @@ const NOTIF_SETTINGS = [
   { key: 'ops', label: '운영공지' },
   { key: 'construction', label: '공사·점검공지' },
   { key: 'urgent', label: '긴급공지' },
-  { key: 'benefit', label: 'WTC 멤버십 혜택' },
+  { key: 'benefit', label: 'WTC 혜택 알림' },
   { key: 'coupon', label: '쿠폰 만료' },
   { key: 'coex', label: '코엑스 전시 일정' },
   { key: 'community', label: '커뮤니티 댓글' },
@@ -33,7 +33,6 @@ const NOTIF_SETTINGS = [
 const MY_MENUS = [
   { label: '내 신청 내역', icon: 'document-text-outline' as const, badge: '3' },
   { label: '내 쿠폰함', icon: 'ticket-outline' as const, badge: '1' },
-  { label: '관심 혜택', icon: 'heart-outline' as const },
   { label: '내 게시글', icon: 'create-outline' as const },
   { label: '내 설문/투표 참여', icon: 'bar-chart-outline' as const },
 ];
@@ -53,14 +52,14 @@ export default function MyScreen() {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const handleLogout = () =>
-    Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
+    showAlert('로그아웃', '정말 로그아웃 하시겠습니까?', [
       { text: '취소', style: 'cancel' },
       {
         text: '로그아웃',
         style: 'destructive',
         onPress: async () => {
           await logout();
-          router.replace('/gateway');
+          router.replace('/(auth)/login');
         },
       },
     ]);
@@ -114,7 +113,7 @@ export default function MyScreen() {
             </View>
             <TouchableOpacity
               style={styles.settingsBtn}
-              onPress={() => Alert.alert('설정', '설정 화면 예정')}
+              onPress={() => showAlert('설정', '설정 화면 예정')}
             >
               <Ionicons name="settings-outline" size={20} color={MD3.onSurface} />
             </TouchableOpacity>
@@ -152,7 +151,7 @@ export default function MyScreen() {
               </View>
               <TouchableOpacity
                 style={styles.editBtn}
-                onPress={() => Alert.alert('회원정보 수정', '기존 홈페이지 연동 예정')}
+                onPress={() => showAlert('회원정보 수정', '기존 홈페이지 연동 예정')}
               >
                 <Ionicons name="create-outline" size={18} color={MD3.primary} />
               </TouchableOpacity>
@@ -185,7 +184,7 @@ export default function MyScreen() {
               <TouchableOpacity
                 key={item.label}
                 style={[styles.menuRow, idx > 0 && styles.menuDivider]}
-                onPress={() => Alert.alert(item.label, '기존 홈페이지 연동 예정')}
+                onPress={() => showAlert(item.label, '기존 홈페이지 연동 예정')}
               >
                 <View style={styles.menuIcon}>
                   <Ionicons name={item.icon} size={18} color={MD3.primary} />
@@ -210,7 +209,7 @@ export default function MyScreen() {
               <TouchableOpacity
                 key={item.label}
                 style={[styles.menuRow, idx > 0 && styles.menuDivider]}
-                onPress={() => Alert.alert(item.label, '기존 홈페이지 연동 예정')}
+                onPress={() => showAlert(item.label, '기존 홈페이지 연동 예정')}
               >
                 <View style={styles.menuIcon}>
                   <Ionicons name={item.icon} size={18} color={MD3.primary} />

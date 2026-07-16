@@ -7,7 +7,6 @@ import {
   TextInput,
   StyleSheet,
   SafeAreaView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -17,6 +16,7 @@ import { MD3 } from '../../constants/colors';
 import { M3Card } from '../../components/common/M3Card';
 import { M3Chip } from '../../components/common/M3Chip';
 import { useAuthStore } from '../../store/useAuthStore';
+import { showAlert } from '../../utils/showAlert';
 
 const BUILDINGS = ['트레이드타워', '아셈타워', '코엑스몰', '기타'];
 
@@ -55,28 +55,28 @@ export default function SafetyReportScreen() {
 
   const handleSubmit = () => {
     if (photoCount === 0) {
-      Alert.alert('사진 필요', '위해요소 사진을 최소 1장 첨부해 주세요.');
+      showAlert('사진 필요', '위해요소 사진을 최소 1장 첨부해 주세요.');
       return;
     }
     if (!building) {
-      Alert.alert('건물 선택', '신고할 건물을 선택해 주세요.');
+      showAlert('건물 선택', '신고할 건물을 선택해 주세요.');
       return;
     }
     if (!location.trim()) {
-      Alert.alert('상세 위치 필요', '상세 위치를 입력해 주세요.');
+      showAlert('상세 위치 필요', '상세 위치를 입력해 주세요.');
       return;
     }
     if (!category) {
-      Alert.alert('신고 유형 선택', '신고 유형을 선택해 주세요.');
+      showAlert('신고 유형 선택', '신고 유형을 선택해 주세요.');
       return;
     }
     if (isAnonymous && password.trim().length !== 4) {
-      Alert.alert('조회 비밀번호 필요', '익명 신고는 4자리 조회 비밀번호를 입력해야 합니다.');
+      showAlert('조회 비밀번호 필요', '익명 신고는 4자리 조회 비밀번호를 입력해야 합니다.');
       return;
     }
 
     const reportNo = makeReportNo();
-    Alert.alert(
+    showAlert(
       '신고가 접수되었습니다',
       `접수번호: ${reportNo}\n처리 현황은 상태 변경 시 푸시로 안내드립니다.`,
       [{ text: '확인', onPress: () => router.back() }]

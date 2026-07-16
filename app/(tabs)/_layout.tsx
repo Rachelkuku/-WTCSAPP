@@ -82,7 +82,7 @@ export default function TabLayout() {
         name="membership/index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <NavItem name="gift" outlineName="gift-outline" label="멤버십" focused={focused} />
+            <NavItem name="gift" outlineName="gift-outline" label="혜택" focused={focused} />
           ),
         }}
       />

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
   Modal,
   Image,
   ImageBackground,
@@ -21,6 +20,7 @@ import { M3TextField } from '../../../components/common/M3TextField';
 import { mockCommunityPosts, mockPolls } from '../../../utils/mockData';
 import { PostCategory, Poll, PollStatus } from '../../../types';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { showAlert } from '../../../utils/showAlert';
 
 const mascotImg = require('../../../assets/mascot_clean.png');
 const bgTexture = require('../../../assets/mascot2.png');
@@ -150,7 +150,7 @@ export default function CommunityScreen() {
 
   const handleWrite = () => {
     if (!isLoggedIn) {
-      Alert.alert('로그인 필요', '게시글 작성은 입주사 로그인 후 가능합니다.');
+      showAlert('로그인 필요', '게시글 작성은 입주사 로그인 후 가능합니다.');
       return;
     }
     setShowModal(true);
@@ -158,13 +158,13 @@ export default function CommunityScreen() {
 
   const handleSubmit = () => {
     if (!title || !content) {
-      Alert.alert('입력 오류', '제목과 내용을 입력해주세요.');
+      showAlert('입력 오류', '제목과 내용을 입력해주세요.');
       return;
     }
     setShowModal(false);
     setTitle('');
     setContent('');
-    Alert.alert('게시글 등록', '관리자 검토 후 게시됩니다.');
+    showAlert('게시글 등록', '관리자 검토 후 게시됩니다.');
   };
 
   return (
@@ -216,7 +216,7 @@ export default function CommunityScreen() {
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             <View style={s.section}>
               {filteredPosts.map((post) => (
-                <M3Card key={post.id} variant="elevated" style={s.postCard} onPress={() => Alert.alert(post.title, post.content)}>
+                <M3Card key={post.id} variant="elevated" style={s.postCard} onPress={() => showAlert(post.title, post.content)}>
                   <View style={s.postHeader}>
                     <View style={[s.catBadge, { backgroundColor: CAT_BG[post.category] }]}>
                       <Text style={[s.catText, { color: CAT_COLOR[post.category] }]}>{CAT_LABEL[post.category]}</Text>

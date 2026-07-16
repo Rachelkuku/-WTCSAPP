@@ -7,7 +7,6 @@ import {
   TextInput,
   StyleSheet,
   SafeAreaView,
-  Alert,
   Animated,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -18,6 +17,7 @@ import { M3Button } from '../../components/common/M3Button';
 import { mockPolls } from '../../utils/mockData';
 import { PollQuestion, PollOption, AnswerMap } from '../../types';
 import { useAuthStore } from '../../store/useAuthStore';
+import { showAlert } from '../../utils/showAlert';
 
 // ── 유틸 ──────────────────────────────────────────────────
 
@@ -467,14 +467,14 @@ export default function PollDetailScreen() {
 
   const handleSubmit = () => {
     if (!isLoggedIn) {
-      Alert.alert('로그인 필요', '투표 참여는 입주사 로그인 후 가능합니다.');
+      showAlert('로그인 필요', '투표 참여는 입주사 로그인 후 가능합니다.');
       return;
     }
     if (requiredUnanswered.length > 0) {
-      Alert.alert('미응답 항목', `필수 문항 ${requiredUnanswered.length}개를 응답해 주세요.`);
+      showAlert('미응답 항목', `필수 문항 ${requiredUnanswered.length}개를 응답해 주세요.`);
       return;
     }
-    Alert.alert(
+    showAlert(
       '투표 제출',
       '응답을 제출하시겠습니까?',
       [

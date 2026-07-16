@@ -15,9 +15,6 @@ export default function Index() {
   // 입주사: 기존 메인으로 바로 진입
   if (userType === 'tenant') return <Redirect href="/(tabs)" />;
 
-  // 방문객: 방문객 메인으로 바로 진입
-  if (userType === 'visitor') return <Redirect href="/(visitor)" />;
-
-  // 처음 방문 또는 초기화 상태: 게이트웨이 화면
-  return <Redirect href="/gateway" />;
+  // 그 외 모든 경우(처음 방문, 로그아웃 등): 입주사 로그인 화면으로 바로 진입
+  return <Redirect href="/(auth)/login" />;
 }

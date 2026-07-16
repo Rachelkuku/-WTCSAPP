@@ -1,0 +1,1156 @@
+<!-- NOTE: 이 파일은 사용자가 채팅으로 붙여넣은 내용이며, 원본 메시지가 5만자 제한에 걸려
+     showResult() 함수 중간부터 잘렸습니다 (result-area 이후 스크립트 마무리, </script>, </body>, </html> 누락).
+     전체 파일이 필요하면 나머지 부분을 다시 붙여넣어 주세요. -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome DID 예약 시스템</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #2563EB;
+            --primary-dk: #1D4ED8;
+            --primary-lt: #DBEAFE;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --border: #E5E7EB;
+            --text: #111827;
+            --text-muted: #6B7280;
+            --success: #059669;
+            --error: #DC2626;
+            --disabled-bg: #F3F4F6;
+            --disabled-fg: #9CA3AF;
+            --booked-bg: #FEE2E2;
+            --booked-fg: #B91C1C;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 18px 20px 14px;
+            text-align: center;
+        }
+
+        .site-header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .site-header p {
+            font-size: 0.78rem;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        /* ── Notice ── */
+        .notice-bar {
+            background: var(--primary-lt);
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: #1E40AF;
+            white-space: pre-line;
+        }
+
+        /* ── Closed Banner ── */
+        .closed-banner {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            text-align: center;
+            color: #92400E;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px 16px 48px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* ── Step badge ── */
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+
+        /* ── Date Buttons ── */
+        .date-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .date-btn {
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 10px 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+            color: var(--text);
+        }
+
+        .date-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: var(--primary-lt);
+        }
+
+        .date-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .date-btn:disabled {
+            background: var(--disabled-bg);
+            color: var(--disabled-fg);
+            cursor: not-allowed;
+            border-color: var(--border);
+        }
+
+        .date-btn .day-name {
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .date-btn .day-num {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 2px 0;
+        }
+
+        .date-btn .closed-label {
+            font-size: 0.62rem;
+            background: #FEE2E2;
+            color: #B91C1C;
+            border-radius: 3px;
+            padding: 1px 4px;
+            display: inline-block;
+        }
+
+        /* ── Slot Buttons ── */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .slot-btn {
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 10px 6px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.15s;
+            color: var(--text);
+        }
+
+        .slot-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: var(--primary-lt);
+        }
+
+        .slot-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .slot-btn.booked {
+            background: var(--booked-bg);
+            color: var(--booked-fg);
+            border-color: #FECACA;
+            cursor: not-allowed;
+            font-weight: 500;
+        }
+
+        .slot-btn:disabled:not(.booked) {
+            background: var(--disabled-bg);
+            color: var(--disabled-fg);
+            cursor: not-allowed;
+        }
+
+        .slot-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .slot-legend {
+            display: flex;
+            gap: 14px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .slot-legend span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            border: 1.5px solid;
+        }
+
+        /* ── Form ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 16px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        label .req {
+            color: var(--error);
+            margin-left: 2px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        textarea {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 9px 12px;
+            font-size: 0.9rem;
+            color: var(--text);
+            background: var(--surface);
+            width: 100%;
+            transition: border-color 0.15s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        input.err,
+        textarea.err {
+            border-color: var(--error);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.5;
+        }
+
+        textarea[readonly] {
+            background-color: var(--disabled-bg);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            border-color: var(--border);
+        }
+
+        /* ── Language Toggle ── */
+        .lang-toggle {
+            display: flex;
+            gap: 0;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .lang-toggle label {
+            flex: 1;
+            text-align: center;
+            padding: 9px 8px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--surface);
+            transition: all 0.15s;
+            border: none;
+        }
+
+        .lang-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .lang-toggle input[type="radio"]:checked+label {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .lang-toggle label:hover {
+            background: var(--primary-lt);
+            color: var(--primary);
+        }
+
+        .lang-toggle input[type="radio"]:checked+label:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* ── Submit ── */
+        .submit-section {
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .submit-btn {
+            display: inline-block;
+            width: 100%;
+            max-width: 360px;
+            padding: 14px 32px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            letter-spacing: -0.2px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--primary-dk);
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            background: var(--disabled-fg);
+            cursor: not-allowed;
+        }
+
+        /* ── Result ── */
+        #result-area {
+            display: none;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        #result-area.success {
+            background: #ECFDF5;
+            border: 1px solid #6EE7B7;
+            color: #065F46;
+        }
+
+        #result-area.error {
+            background: #FEF2F2;
+            border: 1px solid #FCA5A5;
+            color: #7F1D1D;
+        }
+
+        #result-area .result-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        #result-area .result-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        #result-area .result-id {
+            font-size: 0.78rem;
+            color: #059669;
+            margin-top: 6px;
+        }
+
+        /* ── Loading Overlay ── */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Selection Summary ── */
+        .selection-summary {
+            display: none;
+            background: var(--primary-lt);
+            border: 1px solid #BFDBFE;
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #1E40AF;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .selection-summary.visible {
+            display: block;
+        }
+
+        /* ── Error message ── */
+        .field-error {
+            font-size: 0.75rem;
+            color: var(--error);
+            margin-top: 3px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-field.full {
+                grid-column: 1;
+            }
+
+            .slot-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .date-grid {
+                gap: 5px;
+            }
+
+            .date-btn .day-num {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <span style="font-size:0.9rem;color:#374151;">처리 중입니다...</span>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <h1>🏢 Welcome DID 예약 시스템</h1>
+        <p>방문자 환영 메시지 DID 송출 선착순 신청</p>
+    </header>
+
+    <!-- Notice -->
+    <div class="notice-bar" id="notice-bar">공지 사항을 불러오는 중...</div>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- Closed Banner (shown when reception is closed) -->
+        <div class="closed-banner" id="closed-banner" style="display:none; margin-bottom:16px;">
+            ⚠️ 오늘은 예약 접수일이 아닙니다. 예약 접수는 <strong>매주 월~수요일</strong>에 가능합니다.
+        </div>
+
+        <!-- Selection Summary -->
+        <div class="selection-summary" id="selection-summary"></div>
+
+        <!-- Step 1: Date -->
+        <div class="card" id="card-date">
+            <div class="card-title">
+                <span class="step-badge">1</span>날짜 선택
+            </div>
+            <div class="date-grid" id="date-grid">
+                <!-- filled by JS -->
+            </div>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;">
+                * 선택 가능 날짜: 다음주 월~금
+            </p>
+        </div>
+
+        <!-- Step 2: Time Slot -->
+        <div class="card" id="card-slot">
+            <div class="card-title">
+                <span class="step-badge">2</span>시간 선택
+            </div>
+            <div class="slot-grid" id="slot-grid">
+                <!-- filled by JS -->
+            </div>
+            <div class="slot-legend">
+                <span><span class="legend-dot" style="background:var(--surface);border-color:var(--border);"></span>선택
+                    가능</span>
+                <span><span class="legend-dot"
+                        style="background:var(--primary);border-color:var(--primary);"></span>선택됨</span>
+                <span><span class="legend-dot"
+                        style="background:var(--booked-bg);border-color:#FECACA;"></span>예약됨</span>
+            </div>
+        </div>
+
+        <!-- Step 3: Form -->
+        <div class="card" id="card-form">
+            <div class="card-title">
+                <span class="step-badge">3</span>신청 정보 입력
+            </div>
+            <form id="reservation-form" novalidate>
+                <div class="form-grid">
+
+                    <div class="form-field full">
+                        <label for="company">입주사명 <span class="req">*</span></label>
+                        <input type="text" id="company" name="company" placeholder="예: WTCSeoul"
+                            autocomplete="organization">
+                        <span class="field-error" id="err-company"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="phone">휴대폰 번호 <span class="req">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="010-0000-0000">
+                        <span class="field-error" id="err-phone"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="email">이메일 <span class="req">*</span></label>
+                        <input type="email" id="email" name="email" placeholder="name@company.com">
+                        <span class="field-error" id="err-email"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="position">방문자 직위 <span class="req">*</span></label>
+                        <input type="text" id="position" name="position" placeholder="예: 대표이사, 부장">
+                        <span class="field-error" id="err-position"></span>
+                    </div>
+
+                    <div class="form-field full">
+                        <label>언어 선택 <span class="req">*</span> <span
+                                style="font-size:0.75rem;font-weight:400;color:var(--text-muted);">(DID 송출 언어 1개
+                                선택)</span></label>
+                        <div class="lang-toggle">
+                            <input type="radio" name="language" id="lang-kr" value="국문" checked>
+                            <label for="lang-kr">국문</label>
+                            <input type="radio" name="language" id="lang-en" value="영문">
+                            <label for="lang-en">영문</label>
+                        </div>
+                    </div>
+
+                    <div class="form-field full" id="field-nameKr">
+                        <label for="nameKr">방문자 성함 (국문) <span class="req">*</span></label>
+                        <input type="text" id="nameKr" name="nameKr" placeholder="예: 홍길동">
+                        <span class="field-error" id="err-nameKr"></span>
+                    </div>
+
+                    <div class="form-field full" id="field-nameEn" style="display: none;">
+                        <label for="nameEn">방문자 성함 (영문) <span class="req">*</span></label>
+                        <input type="text" id="nameEn" name="nameEn" placeholder="예: Hong Gildong">
+                        <span class="field-error" id="err-nameEn"></span>
+                    </div>
+
+                    <div class="form-field full">
+                        <label for="message">송출 멘트 <span class="req">*</span> <span
+                                style="font-size:0.75rem;font-weight:400;color:var(--text-muted);">(안내 멘트가 자동으로
+                                조합됩니다)</span></label>
+                        <textarea id="message" name="message" rows="3" readonly placeholder="멘트가 자동으로 생성됩니다"></textarea>
+                        <span class="field-error" id="err-message"></span>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 4: Submit -->
+        <div class="card">
+            <div class="submit-section">
+                <button class="submit-btn" id="submit-btn" type="button" onclick="handleSubmit()">
+                    예약 신청하기
+                </button>
+            </div>
+            <div id="result-area"></div>
+        </div>
+
+    </main>
+
+    <script>
+        // ============================================================
+        // 상수 및 상태
+        // ============================================================
+
+        const SLOTS = [
+            '10:00', '11:00', '12:00', '13:00',
+            '14:00', '15:00', '16:00'
+        ];
+        const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+        const DAY_NAMES_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+        let state = {
+            selectedDate: null,
+            selectedSlot: null,
+            bookedSlots: [],
+            config: null,
+            canAccept: false,  // 오늘이 월~수인지
+        };
+
+        // ============================================================
+        // 초기화
+        // ============================================================
+
+        (function init() {
+            // 초기에는 모든 요일 오픈 상태로 설정 (설정 불러오기 전)
+            state.canAccept = true;
+
+            // 설정 로드
+            loadConfig();
+        })();
+
+        function loadConfig() {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(onConfigLoaded)
+                    .withFailureHandler(onConfigError)
+                    .getPageData(null);
+            } else {
+                // 로컬 테스트용 기본값
+                onConfigLoaded({
+                    config: {
+                        notice: '안녕하세요! Welcome DID 예약 신청 페이지입니다.\n예약 접수는 매주 월~수요일(10:00~16:00)에 가능합니다.',
+                        template_kr: '안녕하세요!\n[방문자직위] [방문자성함] 님의 방문을 진심으로 환영합니다.',
+                        template_en: 'Hello!\nWe warmly welcome [Visitor Position] [Visitor Name].',
+                        closed_dates: []
+                    },
+                    bookedSlots: []
+                });
+            }
+        }
+
+        function onConfigLoaded(data) {
+            state.config = data.config;
+
+            // 접수 가능 요일 검사
+            const today = new Date();
+            const dow = today.getDay(); // 0=일, 1=월, ..., 6=토
+            const fromDay = data.config.accept_from_day || 1;
+            const untilDay = data.config.accept_until_day || 3;
+
+            state.canAccept = (dow >= fromDay && dow <= untilDay);
+
+            // 닫힘 배너 표시 여부 및 텍스트 업데이트
+            if (!state.canAccept) {
+                const dayStr = ['일', '월', '화', '수', '목', '금', '토'];
+                const acceptDesc = `<strong>매주 ${dayStr[fromDay]}~${dayStr[untilDay]}요일</strong>`;
+                document.getElementById('closed-banner').innerHTML = `⚠️ 오늘은 예약 접수일이 아닙니다. 예약 접수는 ${acceptDesc}에 가능합니다.`;
+                document.getElementById('closed-banner').style.display = 'block';
+            } else {
+                document.getElementById('closed-banner').style.display = 'none';
+            }
+
+            // 공지 표시
+            const noticeEl = document.getElementById('notice-bar');
+            noticeEl.textContent = data.config.notice || '';
+
+            // 캘린더 렌더링
+            renderCalendar(data.config.closed_dates || []);
+
+            // 슬롯 렌더링 (날짜 미선택 상태)
+            renderSlots([]);
+
+            // 언어 변경 시 멘트 자동 변경
+            setupLanguageToggle();
+        }
+
+        function onConfigError(err) {
+            document.getElementById('notice-bar').textContent = '공지를 불러오지 못했습니다.';
+            renderCalendar([]);
+            renderSlots([]);
+            setupLanguageToggle();
+        }
+
+        // ============================================================
+        // 캘린더 렌더링
+        // ============================================================
+
+        function getNextWeekRange() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dow = today.getDay(); // 0(일) ~ 6(토)
+
+            // 현재 요일을 기준으로 다음 주 월요일까지 남은 일수 계산
+            // 일요일(0)이면 +1일, 월요일(1)이면 +7일, 화요일(2)이면 +6일...
+            let daysToNextMon = 0;
+            if (dow === 0) {
+                daysToNextMon = 1;
+            } else {
+                daysToNextMon = 8 - dow;
+            }
+
+            const nextMonday = new Date(today);
+            nextMonday.setDate(today.getDate() + daysToNextMon);
+
+            const dates = [];
+            for (let i = 0; i < 5; i++) {
+                const d = new Date(nextMonday);
+                d.setDate(nextMonday.getDate() + i);
+                dates.push(d);
+            }
+            return dates;
+        }
+
+        function toDateStr(d) {
+            return d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+        }
+
+        function renderCalendar(closedDates) {
+            const grid = document.getElementById('date-grid');
+            const dates = getNextWeekRange();
+
+            grid.innerHTML = dates.map(d => {
+                const dateStr = toDateStr(d);
+                const dayIdx = d.getDay();
+                const isClosed = closedDates.includes(dateStr);
+                const isDisabled = isClosed;
+
+                const closedLabel = isClosed
+                    ? '<span class="closed-label">휴일</span>'
+                    : '';
+
+                return `
+      <button
+        class="date-btn${isDisabled ? '' : ''}"
+        data-date="${dateStr}"
+        onclick="selectDate('${dateStr}', this)"
+        ${isDisabled ? 'disabled' : ''}
+        aria-label="${d.getMonth() + 1}월 ${d.getDate()}일 ${DAY_NAMES[dayIdx]}요일${isClosed ? ' (휴일)' : ''}"
+      >
+        <div class="day-name">${DAY_NAMES[dayIdx]}요일</div>
+        <div class="day-num">${d.getDate()}</div>
+        <div style="font-size:0.7rem;color:inherit;opacity:0.75">${d.getMonth() + 1}/${d.getDate()}</div>
+        ${closedLabel}
+      </button>
+    `;
+            }).join('');
+        }
+
+        // ============================================================
+        // 날짜 선택
+        // ============================================================
+
+        function selectDate(dateStr, btn) {
+            state.selectedDate = dateStr;
+            state.selectedSlot = null;
+
+            // 선택 스타일
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            // 슬롯 로딩
+            renderSlots([], true); // 로딩 중 표시
+            updateSummary();
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function (booked) {
+                        state.bookedSlots = booked;
+                        renderSlots(booked);
+                    })
+                    .withFailureHandler(function () {
+                        renderSlots([]);
+                    })
+                    .getBookedSlots(dateStr);
+            } else {
+                // 로컬 테스트용
+                state.bookedSlots = [];
+                renderSlots([]);
+            }
+        }
+
+        // ============================================================
+        // 슬롯 렌더링
+        // ============================================================
+
+        function renderSlots(bookedSlots, loading) {
+            const grid = document.getElementById('slot-grid');
+            const noDate = !state.selectedDate;
+
+            if (loading) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-muted);font-size:0.85rem;">슬롯 정보를 불러오는 중...</div>';
+                return;
+            }
+
+            if (noDate) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-muted);font-size:0.85rem;">날짜를 먼저 선택해 주세요.</div>';
+                return;
+            }
+
+            grid.innerHTML = SLOTS.map(slot => {
+                const isBooked = bookedSlots.includes(slot);
+                const endTime = addMinutes(slot, 60);
+                const cls = isBooked ? 'slot-btn booked' : 'slot-btn';
+                return `
+          <button
+            class="${cls}"
+            data-slot="${slot}"
+            onclick="${isBooked ? '' : "selectSlot('" + slot + "', this)"}"
+            ${isBooked ? 'disabled' : ''}
+            aria-label="${slot}${isBooked ? ' (예약됨)' : ''}"
+          >
+            ${slot}
+            ${isBooked ? '<br><span style="font-size:0.62rem;">예약됨</span>' : ''}
+          </button>
+        `;
+            }).join('');
+        }
+
+        // ============================================================
+        // 슬롯 선택
+        // ============================================================
+
+        function selectSlot(slot, btn) {
+            state.selectedSlot = slot;
+
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            updateSummary();
+        }
+
+        // ============================================================
+        // 선택 요약 표시
+        // ============================================================
+
+        function updateSummary() {
+            const el = document.getElementById('selection-summary');
+            if (state.selectedDate && state.selectedSlot) {
+                const d = new Date(state.selectedDate + 'T00:00:00');
+                const endSlot = addMinutes(state.selectedSlot, 60);
+                el.innerHTML = `📅 선택: <strong>${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_NAMES[d.getDay()]})</strong> &nbsp;|&nbsp; ⏰ <strong>${state.selectedSlot} ~ ${endSlot}</strong>`;
+                el.classList.add('visible');
+            } else if (state.selectedDate) {
+                const d = new Date(state.selectedDate + 'T00:00:00');
+                el.innerHTML = `📅 선택: <strong>${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_NAMES[d.getDay()]})</strong> &nbsp;|&nbsp; ⏰ 시간을 선택해 주세요`;
+                el.classList.add('visible');
+            } else {
+                el.classList.remove('visible');
+            }
+        }
+
+        // ============================================================
+        // 언어 토글 & 멘트 자동 입력
+        // ============================================================
+
+        function setupLanguageToggle() {
+            const radios = document.querySelectorAll('input[name="language"]');
+            radios.forEach(r => {
+                r.addEventListener('change', function () {
+                    applyTemplate();
+                    toggleNameFields();
+                });
+            });
+            // 입력 시 멘트 자동 반영
+            ['position', 'nameKr', 'nameEn'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', applyTemplate);
+            });
+            // 초기 상태 반영
+            toggleNameFields();
+            applyTemplate(); // Initial template application
+        }
+
+        function toggleNameFields() {
+            const isKr = document.getElementById('lang-kr').checked;
+            const fieldKr = document.getElementById('field-nameKr');
+            const fieldEn = document.getElementById('field-nameEn');
+
+            if (isKr) {
+                if (fieldKr) fieldKr.style.display = 'block';
+                if (fieldEn) fieldEn.style.display = 'none';
+                // Clear English name field and its error when switching to Korean
+                document.getElementById('nameEn').value = '';
+                document.getElementById('err-nameEn').textContent = '';
+            } else {
+                if (fieldKr) fieldKr.style.display = 'none';
+                if (fieldEn) fieldEn.style.display = 'block';
+                // Clear Korean name field and its error when switching to English
+                document.getElementById('nameKr').value = '';
+                document.getElementById('err-nameKr').textContent = '';
+            }
+        }
+
+        function applyTemplate() {
+            if (!state.config) return;
+            const isKr = document.getElementById('lang-kr').checked;
+            const tmpl = isKr ? (state.config.template_kr || "") : (state.config.template_en || "");
+            const msgEl = document.getElementById('message');
+
+            const position = document.getElementById('position').value.trim();
+            const nameKr = document.getElementById('nameKr').value.trim();
+            const nameEn = document.getElementById('nameEn').value.trim();
+
+            let filled = tmpl || '';
+            if (isKr) {
+                filled = filled.replace('[방문자직위]', position || '[방문자직위]');
+                filled = filled.replace('[방문자성함]', nameKr || '[방문자성함]');
+            } else {
+                filled = filled.replace('[Visitor Position]', position || '[Visitor Position]');
+                filled = filled.replace('[Visitor Name]', nameEn || '[Visitor Name]');
+            }
+            msgEl.value = filled;
+        }
+
+        // ============================================================
+        // 유효성 검사
+        // ============================================================
+
+        function clearErrors() {
+            document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+            document.querySelectorAll('.err').forEach(el => el.classList.remove('err'));
+        }
+
+        function setError(fieldId, msg) {
+            const errEl = document.getElementById('err-' + fieldId);
+            const inputEl = document.getElementById(fieldId);
+            if (errEl) errEl.textContent = msg;
+            if (inputEl) inputEl.classList.add('err');
+        }
+
+        function validate() {
+            clearErrors();
+            let ok = true;
+
+            if (!state.selectedDate) {
+                showResult('error', '날짜를 선택해 주세요.');
+                ok = false;
+            }
+            if (!state.selectedSlot) {
+                if (ok) showResult('error', '시간을 선택해 주세요.');
+                ok = false;
+            }
+
+            const fieldsToValidate = [
+                { id: 'company', label: '입주사명' },
+                { id: 'phone', label: '휴대폰 번호' },
+                { id: 'email', label: '이메일' },
+                { id: 'position', label: '방문자 직위' },
+                { id: 'message', label: '송출 멘트' },
+            ];
+
+            // 언어에 따라 해당 이름 필드를 추가
+            const isKr = document.getElementById('lang-kr').checked;
+            if (isKr) {
+                fieldsToValidate.push({ id: 'nameKr', label: '방문자 성함 (국문)' });
+            } else {
+                fieldsToValidate.push({ id: 'nameEn', label: '방문자 성함 (영문)' });
+            }
+
+            fieldsToValidate.forEach(field => {
+                const val = (document.getElementById(field.id)?.value || '').trim();
+                if (!val) {
+                    setError(field.id, field.label + '을(를) 입력해 주세요.');
+                    ok = false;
+                }
+            });
+
+            // 이메일 형식
+            const email = (document.getElementById('email')?.value || '').trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setError('email', '올바른 이메일 형식을 입력해 주세요.');
+                ok = false;
+            }
+
+            return ok;
+        }
+
+        // ============================================================
+        // 제출
+        // ============================================================
+
+        function handleSubmit() {
+            if (!state.canAccept) {
+                alert('오늘은 예약 접수일이 아닙니다.');
+                return;
+            }
+
+            if (!validate()) {
+                scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            const loader = document.getElementById('loading-overlay');
+            const form = document.getElementById('reservation-form');
+
+            // 데이터 수집
+            const formData = new FormData(form);
+            const data = {
+                date: state.selectedDate,
+                slot: state.selectedSlot,
+                company: formData.get('company'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                position: formData.get('position'),
+                nameKr: formData.get('nameKr'),
+                nameEn: formData.get('nameEn'),
+                language: formData.get('language'),
+                message: document.getElementById('message').value
+            };
+
+            btn.disabled = true;
+            loader.classList.add('active');
+            hideResult();
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function (res) {
+                        btn.disabled = false;
+                        loader.classList.remove('active');
+                        if (res.success) {
+                            showResult('success', res.message, res.id);
+                            form.reset();
+                            state.selectedDate = null;
+                            state.selectedSlot = null;
+                            updateSummary();
+                            document.querySelectorAll('.date-btn, .slot-btn').forEach(b => b.classList.remove('selected'));
+                            renderSlots([]); // 슬롯 초기화
+                            // Reload booked slots to disable the newly booked one
+                            selectDate(data.date, document.querySelector(`.date-btn[data-date="${data.date}"]`));
+                        } else {
+                            showResult('error', res.message);
+                        }
+                    })
+                    .withFailureHandler(function (err) {
+                        btn.disabled = false;
+                        loader.classList.remove('active');
+                        showResult('error', '서버 통신 중 오류가 발생했습니다.');
+                        console.error(err);
+                    })
+                    .submitReservation(data);
+            } else {
+                // 로컬 테스트
+                setTimeout(() => {
+                    btn.disabled = false;
+                    loader.classList.remove('active');
+                    showResult('success', '테스트: 신청이 완료되었습니다.', 'TEST1234');
+                }, 1000);
+            }
+        }
+
+        // ============================================================
+        // 결과 표시
+        // ============================================================
+
+        function showResult(type, msg, id) {
+            const area = document.getElementById('result-area');
+            area.className = type; // success or error
+            area.style.display = 'block';
+
+            const icon = type === 'success' ? '✅' : '⚠️';
+            const title = type === 'success' ? '예약 신청 성공' : '예약 신청 실패';
+
+            // ⚠️ 원본 메시지가 여기서 5만자 제한으로 잘렸습니다.
+            // 아래는 이 지점까지 받은 내용을 그대로 저장한 것이며,
+            // showResult()의 나머지 부분, hideResult(), </script>, </body>, </html> 이 누락되어 있습니다.
+            // 전체 파일이 필요하면 나머지 부분을 다시 보내주세요.
+    </script>
+</body>
+
+</html>

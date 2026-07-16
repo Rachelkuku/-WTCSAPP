@@ -18,9 +18,10 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { MD3 } from '../../constants/colors';
+import { EXTERNAL_URLS } from '../../constants/i18n';
 import { M3Card } from '../../components/common/M3Card';
 import { CarFinderIcon } from '../../components/common/CarFinderIcon';
-import { mockNotices, mockBenefits, mockCoexEvents, mockParkingInfo } from '../../utils/mockData';
+import { mockBenefits, mockCoexEvents, mockParkingInfo } from '../../utils/mockData';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ParkingStatus } from '../../types';
 
@@ -57,24 +58,6 @@ function QRView({ value, size = 220 }: { value: string; size?: number }) {
     </View>
   );
 }
-
-const NOTICE_CAT_LABEL: Record<string, string> = {
-  operations: '운영',
-  construction: '공사',
-  urgent: '긴급',
-};
-
-const NOTICE_CAT_COLOR: Record<string, string> = {
-  operations: MD3.primary,
-  construction: MD3.secondary,
-  urgent: MD3.error,
-};
-
-const NOTICE_CAT_BG: Record<string, string> = {
-  operations: MD3.primaryContainer,
-  construction: MD3.secondaryContainer,
-  urgent: MD3.errorContainer,
-};
 
 const PARKING_LABEL: Record<ParkingStatus, string> = {
   free: '여유',
@@ -118,19 +101,17 @@ const PARKING_MSG: Record<ParkingStatus, string> = {
   unknown: '실시간 주차 정보를 확인 중입니다.',
 };
 
-const QUICK_MENUS = [
-  { label: '방문자 신청', icon: 'person-add-outline' as const },
-  { label: '임시주차 신청', icon: 'car-outline' as const },
-  { label: '냉난방 신청', icon: 'thermometer-outline' as const },
-  { label: '회의실 대관', icon: 'business-outline' as const },
-  { label: '화물EV 신청', icon: 'arrow-up-circle-outline' as const },
-  { label: '비품대여', icon: 'umbrella-outline' as const },
+const AMENITY_LINKS = [
+  { label: '스타필드\n식당 안내', icon: 'restaurant-outline' as const, action: () => Linking.openURL(EXTERNAL_URLS.dining) },
+  { label: '별마당 도서관\n초대행사', icon: 'book-outline' as const, action: () => Linking.openURL(EXTERNAL_URLS.starfieldLibrary) },
+  { label: '리무진\n(도심공항)', icon: 'bus-outline' as const, action: () => Linking.openURL(EXTERNAL_URLS.limo) },
+  { label: '수하물\n서비스', icon: 'briefcase-outline' as const, action: () => Linking.openURL(EXTERNAL_URLS.luggage) },
+  { label: '편의시설\n안내', icon: 'information-circle-outline' as const, action: () => router.push('/amenities' as any) },
 ];
 
 export default function HomeScreen() {
   const user = useAuthStore((s) => s.user);
   const parking = mockParkingInfo;
-  const todayNotices = mockNotices.slice(0, 3);
   const todayBenefits = mockBenefits.slice(0, 3);
   const ongoingEvents = mockCoexEvents.filter((e) => e.isActive).slice(0, 3);
 
@@ -164,7 +145,7 @@ export default function HomeScreen() {
         <Image source={mascotImg} style={styles.headerCharImg} resizeMode="contain" />
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.topBar}>
-            <Text style={styles.appBarHeadline}>WTC ASEM·TRADE</Text>
+            <Text style={styles.appBarHeadline}>WTCS ASEM·TRADE</Text>
             <View style={styles.appBarActions}>
               <TouchableOpacity style={styles.iconBtn} onPress={() => Linking.openURL('tel:02-6000-0114')}>
                 <Ionicons name="call-outline" size={22} color="#FFFFFF" />
@@ -194,28 +175,12 @@ export default function HomeScreen() {
           </View>
           <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
 
-            {/* Quick Actions */}
-            <View style={styles.quickGridContainer}>
-              <View style={styles.quickGrid}>
-                {QUICK_MENUS.map((m) => (
-                  <TouchableOpacity
-                    key={m.label}
-                    style={styles.quickItem}
-                    onPress={() => router.push('/(tabs)/apply/index' as any)}
-                  >
-                    <LinearGradient
-                      colors={['#FFFFFF', '#E6F0FA']}
-                      style={styles.quickIcon}
-                    >
-                      <Ionicons name={m.icon} size={28} color={MD3.primary} />
-                    </LinearGradient>
-                    <Text style={styles.quickLabel}>{m.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+            {/* ===== 그룹 1: 무역센터 현황 ===== */}
+            <View style={styles.groupHeaderRow}>
+              <View style={styles.groupHeaderBar} />
+              <Text style={styles.groupHeaderText}>무역센터 현황</Text>
             </View>
 
-            {/* 주차현황 */}
             <View style={styles.section}>
               <View style={styles.sectionRow}>
                 <Text style={styles.sectionTitle}>주차현황</Text>
@@ -271,32 +236,82 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Today's Notices */}
-            <View style={styles.section}>
-              <View style={styles.sectionRow}>
-                <Text style={styles.sectionTitle}>오늘의 공지</Text>
-                <TouchableOpacity onPress={() => router.push('/(tabs)/apply/index' as any)}>
-                  <Text style={styles.seeAll}>전체보기</Text>
-                </TouchableOpacity>
+            {/* 스피드게이트 출입 QR 버튼 */}
+            <TouchableOpacity style={styles.qrBtn} onPress={openQR} activeOpacity={0.85}>
+              <LinearGradient colors={['#1A3A5C', '#2A5CA8']} style={styles.qrBtnGradient}>
+                <View style={styles.qrBtnLeft}>
+                  <View style={styles.qrBtnIconBox}>
+                    <Ionicons name="qr-code-outline" size={28} color="#FFFFFF" />
+                  </View>
+                  <View>
+                    <Text style={styles.qrBtnTitle}>스피드게이트 출입 QR</Text>
+                    <Text style={styles.qrBtnSub}>탭하여 QR 코드 열기</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.6)" />
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* ===== 그룹 2: 스마트 오피스 라이프 ===== */}
+            <View style={[styles.groupHeaderRow, { marginTop: 28 }]}>
+              <View style={styles.groupHeaderBar} />
+              <Text style={styles.groupHeaderText}>스마트 오피스 라이프</Text>
+            </View>
+
+            <View style={[styles.section, { marginBottom: 12 }]}>
+              <TouchableOpacity
+                style={styles.carFinderBtn}
+                onPress={() => router.push('/indoor-map' as any)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.carFinderBtnLeft}>
+                  <View style={styles.carFinderBtnIconBox}>
+                    <Ionicons name="navigate-outline" size={22} color={MD3.primary} />
+                  </View>
+                  <Text style={styles.carFinderBtnText}>실내 길찾기</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+              </TouchableOpacity>
+            </View>
+
+            {/* 안전신문고 버튼 */}
+            <TouchableOpacity
+              style={styles.safetyBtn}
+              onPress={() => router.push('/safety' as any)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.safetyBtnLeft}>
+                <View style={styles.safetyBtnIconBox}>
+                  <Ionicons name="shield-checkmark-outline" size={24} color={MD3.error} />
+                </View>
+                <View>
+                  <Text style={styles.safetyBtnTitle}>안전신문고</Text>
+                  <Text style={styles.safetyBtnSub}>안전 위험요소를 신고해주세요</Text>
+                </View>
               </View>
-              <M3Card variant="outlined" style={styles.listCard}>
-                {todayNotices.map((notice, idx) => (
-                  <TouchableOpacity
-                    key={notice.id}
-                    style={[styles.listRow, idx < todayNotices.length - 1 && styles.listDivider]}
-                    onPress={() => router.push(`/notice/${notice.id}` as any)}
-                  >
-                    <View style={[styles.noticeCatBadge, { backgroundColor: NOTICE_CAT_BG[notice.category] }]}>
-                      <Text style={[styles.noticeCatText, { color: NOTICE_CAT_COLOR[notice.category] }]}>
-                        {NOTICE_CAT_LABEL[notice.category]}
-                      </Text>
-                    </View>
-                    <Text style={styles.listItemTitle} numberOfLines={1}>{notice.title}</Text>
-                    {notice.isUrgent && <Ionicons name="alert-circle" size={16} color={MD3.error} />}
-                    <Ionicons name="chevron-forward" size={16} color={MD3.onSurfaceVariant} />
-                  </TouchableOpacity>
-                ))}
-              </M3Card>
+              <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+            </TouchableOpacity>
+
+            <View style={[styles.section, { marginTop: 8 }]}>
+              <TouchableOpacity
+                style={styles.carFinderBtn}
+                onPress={() => router.push('/media' as any)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.carFinderBtnLeft}>
+                  <View style={styles.carFinderBtnIconBox}>
+                    <Ionicons name="tv-outline" size={22} color={MD3.primary} />
+                  </View>
+                  <Text style={styles.carFinderBtnText}>미디어 신청</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+              </TouchableOpacity>
+            </View>
+
+            {/* ===== 그룹 3: 코엑스 라이프 & 편의 서비스 ===== */}
+            <View style={styles.groupHeaderRow}>
+              <View style={styles.groupHeaderBar} />
+              <Text style={styles.groupHeaderText}>코엑스 라이프 & 편의 서비스</Text>
             </View>
 
             {/* Today's Benefits */}
@@ -358,6 +373,31 @@ export default function HomeScreen() {
               </M3Card>
             </View>
 
+            {/* 무역센터 편의시설 안내 */}
+            <View style={[styles.section, { paddingHorizontal: 16 }]}>
+              <Text style={styles.sectionTitle}>무역센터 편의시설 안내</Text>
+              <View style={styles.amenityGrid}>
+                {AMENITY_LINKS.map((a) => (
+                  <TouchableOpacity
+                    key={a.label}
+                    style={styles.amenityItem}
+                    onPress={a.action}
+                  >
+                    <View style={styles.amenityIcon}>
+                      <Ionicons name={a.icon} size={24} color={MD3.primary} />
+                    </View>
+                    <Text style={styles.amenityLabel}>{a.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* ===== 그룹 4: 고객센터 ===== */}
+            <View style={styles.groupHeaderRow}>
+              <View style={styles.groupHeaderBar} />
+              <Text style={styles.groupHeaderText}>고객센터</Text>
+            </View>
+
             {/* Customer Service Banner */}
             <View style={styles.csBanner}>
               <TouchableOpacity style={styles.csHalf} onPress={() => Linking.openURL('tel:02-6000-0114')}>
@@ -380,40 +420,6 @@ export default function HomeScreen() {
                 </View>
               </TouchableOpacity>
             </View>
-
-            {/* 스피드게이트 출입 QR 버튼 */}
-            <TouchableOpacity style={styles.qrBtn} onPress={openQR} activeOpacity={0.85}>
-              <LinearGradient colors={['#1A3A5C', '#2A5CA8']} style={styles.qrBtnGradient}>
-                <View style={styles.qrBtnLeft}>
-                  <View style={styles.qrBtnIconBox}>
-                    <Ionicons name="qr-code-outline" size={28} color="#FFFFFF" />
-                  </View>
-                  <View>
-                    <Text style={styles.qrBtnTitle}>스피드게이트 출입 QR</Text>
-                    <Text style={styles.qrBtnSub}>탭하여 QR 코드 열기</Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.6)" />
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* 안전신문고 버튼 */}
-            <TouchableOpacity
-              style={styles.safetyBtn}
-              onPress={() => router.push('/safety' as any)}
-              activeOpacity={0.85}
-            >
-              <View style={styles.safetyBtnLeft}>
-                <View style={styles.safetyBtnIconBox}>
-                  <Ionicons name="shield-checkmark-outline" size={24} color={MD3.error} />
-                </View>
-                <View>
-                  <Text style={styles.safetyBtnTitle}>안전신문고</Text>
-                  <Text style={styles.safetyBtnSub}>안전 위험요소를 신고해주세요</Text>
-                </View>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
-            </TouchableOpacity>
 
           </ScrollView>
         </View>
@@ -488,7 +494,7 @@ const styles = StyleSheet.create({
   greetingSubtitle: { fontSize: 14, color: 'rgba(255,255,255,0.85)', marginTop: 4 },
   headerCharImg: { width: 225, height: 179, position: 'absolute', right: 0, bottom: -14 },
 
-  contentWrapper: { flex: 1, marginTop: -65 },
+  contentWrapper: { flex: 1, marginTop: -30 },
   whitePanel: {
     flex: 1, backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 32, borderTopRightRadius: 32,
@@ -506,28 +512,28 @@ const styles = StyleSheet.create({
   },
   scroll: { flex: 1 },
 
-  quickGridContainer: { paddingHorizontal: 16, marginBottom: 32 },
-  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between' },
-  quickItem: { width: '30%', alignItems: 'center', marginBottom: 12 },
-  quickIcon: {
-    width: 64, height: 64, borderRadius: 24,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 8,
-    borderWidth: 1, borderColor: '#F0F8FF',
-    shadowColor: '#4A9EC4', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4,
-  },
-  quickLabel: { fontSize: 13, color: MD3.onSurface, textAlign: 'center', fontWeight: '500' },
-
   section: { marginBottom: 32 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingHorizontal: 16 },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: MD3.onSurface },
   seeAll: { fontSize: 14, color: '#888', fontWeight: '500' },
 
+  groupHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 14, marginTop: 4 },
+  groupHeaderBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: MD3.primary },
+  groupHeaderText: { fontSize: 18, fontWeight: '700', color: MD3.onSurface },
+
+  amenityGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  amenityItem: { width: '18%', alignItems: 'center' },
+  amenityIcon: {
+    width: 52, height: 52, borderRadius: 18,
+    backgroundColor: '#F0F8FF',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 6,
+  },
+  amenityLabel: { fontSize: 11, color: MD3.onSurfaceVariant, textAlign: 'center', lineHeight: 14 },
+
   listCard: { overflow: 'hidden' },
   listRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 10 },
   listDivider: { borderBottomWidth: 1, borderBottomColor: MD3.outlineVariant },
   listItemTitle: { flex: 1, fontSize: 15, fontWeight: '500', color: MD3.onSurface },
-  noticeCatBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-  noticeCatText: { fontSize: 12, fontWeight: '700' },
 
   benefitCard: { flex: 1 },
   benefitImgBox: { height: 90, backgroundColor: '#F5F8FF', alignItems: 'center', justifyContent: 'center' },

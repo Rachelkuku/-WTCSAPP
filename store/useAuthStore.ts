@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from '../types';
 import { Lang } from '../constants/i18n';
 
-export type UserType = 'tenant' | 'visitor' | null;
+export type UserType = 'tenant' | null;
 
 interface AuthState {
   user: User | null;
@@ -15,7 +15,6 @@ interface AuthState {
   hydrate: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  setVisitor: () => Promise<void>;
   setLang: (lang: Lang) => Promise<void>;
 }
 
@@ -61,11 +60,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         isTenantVerified: true,
       },
     });
-  },
-
-  setVisitor: async () => {
-    await AsyncStorage.setItem('userType', 'visitor');
-    set({ userType: 'visitor' });
   },
 
   setLang: async (lang: Lang) => {

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +12,7 @@ import { MD3 } from '../../constants/colors';
 import { M3TextField } from '../../components/common/M3TextField';
 import { M3Button } from '../../components/common/M3Button';
 import { M3TopAppBar } from '../../components/common/M3TopAppBar';
+import { showAlert } from '../../utils/showAlert';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -23,10 +23,10 @@ export default function RegisterScreen() {
 
   const handleRegister = () => {
     if (!name || !email || !phone || !password || !company) {
-      Alert.alert('입력 오류', '모든 항목을 입력해주세요.');
+      showAlert('입력 오류', '모든 항목을 입력해주세요.');
       return;
     }
-    Alert.alert('회원가입 신청 완료', '관리자 인증 후 입주사 전용 서비스를 이용하실 수 있습니다.', [
+    showAlert('회원가입 신청 완료', '관리자 인증 후 입주사 전용 서비스를 이용하실 수 있습니다.', [
       { text: '확인', onPress: () => router.back() },
     ]);
   };

@@ -28,7 +28,7 @@ export interface Notice {
   createdAt: string;
 }
 
-export type BenefitCategory = 'fnb' | 'shopping' | 'hotel' | 'exhibition';
+export type BenefitCategory = 'fnb' | 'shopping' | 'hotel' | 'leisure' | 'service';
 
 export interface Benefit {
   id: string;

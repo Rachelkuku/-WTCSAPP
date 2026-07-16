@@ -12,10 +12,8 @@ export default function RootLayout() {
         <StatusBar style="light" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
-          <Stack.Screen name="gateway" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(visitor)" />
           <Stack.Screen name="webview" />
           <Stack.Screen name="safety/index" />
           <Stack.Screen name="car-finder/index" />

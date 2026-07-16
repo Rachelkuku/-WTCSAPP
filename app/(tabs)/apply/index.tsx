@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
-  Linking,
   Image,
   ImageBackground,
 } from 'react-native';
@@ -17,6 +15,7 @@ import { M3Card } from '../../../components/common/M3Card';
 import { M3Chip } from '../../../components/common/M3Chip';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { mockNotices } from '../../../utils/mockData';
+import { showAlert } from '../../../utils/showAlert';
 
 const mascotImg = require('../../../assets/mascot_clean.png');
 const bgTexture = require('../../../assets/mascot.png');
@@ -26,9 +25,7 @@ const APPLY_MENUS = [
   { id: 'parking', label: '임시정차\n신청', icon: 'car-outline' as const, requireLogin: true },
   { id: 'hvac', label: '냉난방\n신청', icon: 'thermometer-outline' as const, requireLogin: true },
   { id: 'elevator', label: '화물E/V\n전용신청', icon: 'arrow-up-circle-outline' as const, requireLogin: true },
-  { id: 'meeting', label: '회의실\n대관신청', icon: 'business-outline' as const, requireLogin: true },
   { id: 'ceiling', label: '천장텍스\n신청', icon: 'construct-outline' as const, requireLogin: true },
-  { id: 'voc', label: '고객의\n소리', icon: 'chatbubble-ellipses-outline' as const, requireLogin: true },
   { id: 'construction', label: '공사·작업\n신청방법', icon: 'hammer-outline' as const, requireLogin: false },
 ];
 
@@ -69,10 +66,10 @@ export default function ApplyScreen() {
 
   const handleApply = (menu: typeof APPLY_MENUS[0]) => {
     if (menu.requireLogin && !isLoggedIn) {
-      Alert.alert('로그인 필요', '입주사 로그인 후 이용하실 수 있습니다.');
+      showAlert('로그인 필요', '입주사 로그인 후 이용하실 수 있습니다.');
       return;
     }
-    Alert.alert(menu.label.replace('\n', ' '), '기존 홈페이지 API 연동 예정');
+    showAlert(menu.label.replace('\n', ' '), '기존 홈페이지 API 연동 예정');
   };
 
   return (
@@ -124,35 +121,6 @@ export default function ApplyScreen() {
           </M3Card>
         </View>
 
-        {/* My Menu (logged in) */}
-        {isLoggedIn && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>마이페이지</Text>
-            <M3Card variant="outlined" style={{ overflow: 'hidden' }}>
-              {[
-                { label: '신청 내역 조회', icon: 'list-outline' as const, sub: '3건 처리 중' },
-                { label: '개인정보 수정', icon: 'person-outline' as const, sub: '' },
-                { label: '입주사 회원관리', icon: 'people-outline' as const, sub: '' },
-              ].map((item, idx) => (
-                <TouchableOpacity
-                  key={item.label}
-                  style={[styles.listRow, idx > 0 && styles.listDivider]}
-                  onPress={() => Alert.alert(item.label, '기존 홈페이지 연동 예정')}
-                >
-                  <View style={styles.listIcon}>
-                    <Ionicons name={item.icon} size={20} color="#4A9EC4" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.listTitle}>{item.label}</Text>
-                    {item.sub ? <Text style={styles.listSub}>{item.sub}</Text> : null}
-                  </View>
-                  <Ionicons name="chevron-forward" size={16} color={MD3.onSurfaceVariant} />
-                </TouchableOpacity>
-              ))}
-            </M3Card>
-          </View>
-        )}
-
         {/* Notice Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>공지사항</Text>
@@ -187,32 +155,6 @@ export default function ApplyScreen() {
               </View>
             ))}
           </M3Card>
-        </View>
-
-        {/* Customer Service */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>고객센터</Text>
-          <View style={styles.csCard}>
-            <TouchableOpacity style={styles.csHalf} onPress={() => Linking.openURL('tel:02-6000-0114')}>
-              <View style={styles.csIconBox}>
-                <Ionicons name="headset" size={24} color="#FFFFFF" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.csLabel}>고객센터</Text>
-                <Text style={styles.csPhone}>02-6000-0114</Text>
-              </View>
-            </TouchableOpacity>
-            <View style={styles.csDividerV} />
-            <TouchableOpacity style={styles.csHalf} onPress={() => Linking.openURL('https://pf.kakao.com/_xjxocaT')}>
-              <View style={styles.kakaoIconBox}>
-                <Ionicons name="chatbubble-ellipses" size={24} color="#3C1E1E" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.csLabel}>카카오톡 상담</Text>
-                <Text style={styles.kakaoText}>고객센터 바로가기</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
         </View>
 
         <View style={{ height: 32 }} />
@@ -251,7 +193,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 16, fontWeight: '600', color: MD3.onSurface, marginBottom: 12 },
   gridCard: { padding: 8 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  gridItem: { width: '25%', alignItems: 'center', paddingVertical: 12 },
+  gridItem: { width: '33.33%', alignItems: 'center', paddingVertical: 12 },
   gridIcon: {
     width: 60, height: 60, borderRadius: 18,
     backgroundColor: '#EAF4FA',
@@ -283,30 +225,4 @@ const styles = StyleSheet.create({
   noticeDate: { fontSize: 11, color: MD3.outline, marginLeft: 'auto' },
   noticeTitle: { fontSize: 14, fontWeight: '600', color: MD3.onSurface, marginBottom: 4 },
   noticeContent: { fontSize: 13, color: MD3.onSurfaceVariant, lineHeight: 19 },
-  csCard: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: MD3.surface, borderRadius: 16,
-    borderWidth: 1, borderColor: MD3.outlineVariant,
-    overflow: 'hidden',
-  },
-  csHalf: {
-    flex: 1, flexDirection: 'row', alignItems: 'center',
-    padding: 16, gap: 12,
-  },
-  csDividerV: {
-    width: 1, height: 56, backgroundColor: MD3.outlineVariant,
-  },
-  csIconBox: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: '#4A9EC4',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  kakaoIconBox: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: '#FEE500',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  csLabel: { fontSize: 11, color: MD3.onSurfaceVariant, marginBottom: 3 },
-  csPhone: { fontSize: 16, fontWeight: '700', color: MD3.onSurface },
-  kakaoText: { fontSize: 14, fontWeight: '700', color: '#3C1E1E' },
 });
