@@ -18,6 +18,7 @@ const CAT_META: Record<string, { label: string; color: string; bg: string }> = {
   operations: { label: '운영공지', color: MD3.primary, bg: MD3.primaryContainer },
   construction: { label: '공사·점검공지', color: MD3.warning, bg: MD3.secondaryContainer },
   urgent: { label: '긴급공지', color: MD3.error, bg: MD3.errorContainer },
+  event: { label: '행사', color: MD3.tertiary, bg: MD3.tertiaryContainer },
 };
 
 export default function NoticeDetailScreen() {

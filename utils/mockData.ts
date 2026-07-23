@@ -49,6 +49,30 @@ export const mockNotices: Notice[] = [
     contactPhone: '02-6000-1111',
     createdAt: '2026-04-22',
   },
+  {
+    id: '5',
+    title: '[행사] 여름휴가, 김해로 체크인!',
+    category: 'event',
+    content: '여름휴가 시즌을 맞아 준비한 이벤트입니다. 코엑스 1층 행사장에서 진행되며, 참여 인증 시 소정의 경품을 드립니다. 입주사 임직원이라면 누구나 참여하실 수 있습니다.',
+    targetBuilding: 'WTC SEOUL',
+    startDate: '2026-07-20',
+    endDate: '2026-08-15',
+    isUrgent: false,
+    contactPhone: '02-6000-7777',
+    createdAt: '2026-07-18',
+  },
+  {
+    id: '6',
+    title: '무역센터 봄맞이 행복 콘서트',
+    category: 'event',
+    content: '무역센터 야외 광장에서 진행되는 봄맞이 행복 콘서트에 입주사 임직원분들을 초대합니다. 별도 신청 없이 현장에서 자유롭게 관람하실 수 있습니다.',
+    targetBuilding: 'WTC SEOUL',
+    startDate: '2026-04-10',
+    endDate: '2026-04-10',
+    isUrgent: false,
+    contactPhone: '02-6000-7777',
+    createdAt: '2026-04-01',
+  },
 ];
 
 export const mockBenefits: Benefit[] = [

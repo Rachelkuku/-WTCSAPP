@@ -11,7 +11,7 @@ export interface User {
   isTenantVerified: boolean;
 }
 
-export type NoticeCategory = 'operations' | 'construction' | 'urgent';
+export type NoticeCategory = 'operations' | 'construction' | 'urgent' | 'event';
 
 export interface Notice {
   id: string;

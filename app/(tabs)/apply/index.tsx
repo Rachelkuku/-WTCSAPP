@@ -29,31 +29,35 @@ const APPLY_MENUS = [
   { id: 'construction', label: '공사·작업\n신청방법', icon: 'hammer-outline' as const, requireLogin: false },
 ];
 
-type NotiTab = 'all' | 'operations' | 'construction' | 'urgent';
+type NotiTab = 'all' | 'operations' | 'construction' | 'urgent' | 'event';
 
 const NOTICE_TABS: { key: NotiTab; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'operations', label: '운영공지' },
   { key: 'construction', label: '공사·점검' },
   { key: 'urgent', label: '긴급' },
+  { key: 'event', label: '행사' },
 ];
 
 const CAT_COLOR: Record<string, string> = {
   operations: MD3.primary,
   construction: MD3.warning,
   urgent: MD3.error,
+  event: MD3.tertiary,
 };
 
 const CAT_BG: Record<string, string> = {
   operations: MD3.primaryContainer,
   construction: MD3.secondaryContainer,
   urgent: MD3.errorContainer,
+  event: MD3.tertiaryContainer,
 };
 
 const CAT_LABEL: Record<string, string> = {
   operations: '운영',
   construction: '공사',
   urgent: '긴급',
+  event: '행사',
 };
 
 export default function ApplyScreen() {
