@@ -13,7 +13,6 @@ import {
   StatusBar,
   Modal,
 } from 'react-native';
-import qrcode from 'qrcode-generator';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,43 +20,13 @@ import { MD3 } from '../../constants/colors';
 import { EXTERNAL_URLS } from '../../constants/i18n';
 import { M3Card } from '../../components/common/M3Card';
 import { CarFinderIcon } from '../../components/common/CarFinderIcon';
+import { QRView } from '../../components/common/QRView';
 import { mockBenefits, mockCoexEvents, mockParkingInfo } from '../../utils/mockData';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ParkingStatus } from '../../types';
 
 const mascotImg = require('../../assets/cacl.png');
 const bgWtc = require('../../assets/bg_wtc.jpg');
-
-function QRView({ value, size = 220 }: { value: string; size?: number }) {
-  const matrix: boolean[][] = React.useMemo(() => {
-    try {
-      const qr = qrcode(0, 'M');
-      qr.addData(value);
-      qr.make();
-      const count = qr.getModuleCount();
-      return Array.from({ length: count }, (_, r) =>
-        Array.from({ length: count }, (_, c) => qr.isDark(r, c))
-      );
-    } catch {
-      return [];
-    }
-  }, [value]);
-
-  if (!matrix.length) return null;
-  const cell = size / matrix.length;
-
-  return (
-    <View style={{ width: size, height: size }}>
-      {matrix.map((row, r) => (
-        <View key={r} style={{ flexDirection: 'row' }}>
-          {row.map((dark, c) => (
-            <View key={c} style={{ width: cell, height: cell, backgroundColor: dark ? '#1A3A5C' : '#FFFFFF' }} />
-          ))}
-        </View>
-      ))}
-    </View>
-  );
-}
 
 const PARKING_LABEL: Record<ParkingStatus, string> = {
   free: '여유',
@@ -303,6 +272,22 @@ export default function HomeScreen() {
                     <Ionicons name="tv-outline" size={22} color={MD3.primary} />
                   </View>
                   <Text style={styles.carFinderBtnText}>미디어 신청</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={[styles.section, { marginTop: 8 }]}>
+              <TouchableOpacity
+                style={styles.carFinderBtn}
+                onPress={() => router.push('/umbrella' as any)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.carFinderBtnLeft}>
+                  <View style={styles.carFinderBtnIconBox}>
+                    <Ionicons name="umbrella-outline" size={22} color={MD3.primary} />
+                  </View>
+                  <Text style={styles.carFinderBtnText}>우산대여 서비스</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={MD3.onSurfaceVariant} />
               </TouchableOpacity>

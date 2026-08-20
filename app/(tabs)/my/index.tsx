@@ -31,6 +31,7 @@ const NOTIF_SETTINGS = [
 ];
 
 const MY_MENUS = [
+  { label: '모바일 사원증', icon: 'id-card-outline' as const, onPress: () => router.push('/id-card' as any) },
   { label: '내 신청 내역', icon: 'document-text-outline' as const, badge: '3' },
   { label: '내 쿠폰함', icon: 'ticket-outline' as const, badge: '1' },
   { label: '내 게시글', icon: 'create-outline' as const },
@@ -184,7 +185,7 @@ export default function MyScreen() {
               <TouchableOpacity
                 key={item.label}
                 style={[styles.menuRow, idx > 0 && styles.menuDivider]}
-                onPress={() => showAlert(item.label, '기존 홈페이지 연동 예정')}
+                onPress={() => (item.onPress ? item.onPress() : showAlert(item.label, '기존 홈페이지 연동 예정'))}
               >
                 <View style={styles.menuIcon}>
                   <Ionicons name={item.icon} size={18} color={MD3.primary} />
